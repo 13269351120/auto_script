@@ -1,0 +1,12 @@
+import os
+import sys 
+
+index = 0 
+f = open("//nfs/project/daily_3drecon/20181211/Beijing_Buick_Q9Q3M0/iphone7p_shangqinyuan/starneto/5fps_without_1fps.txt",'r')
+
+output = open("/nfs/project/localization/measure_set/testing_set/20181211_shangqingyuan_iphone7p_test.txt",'a+')
+for line in f :
+    if (index % 16 == 0) :
+            output.write(line)
+    index += 1 
+
