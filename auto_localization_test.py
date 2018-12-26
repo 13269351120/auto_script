@@ -20,16 +20,21 @@ localization_task_path = "/home/luban/sutenghui/localization_task"
 distance_path = "/home/luban/sutenghui/colmap_perf/"
 #test_model_path = "/nfs/project/daily_3drecon/20181214/3drecon/test_partial_ba/samsung_starneto_xierqizhanfanxiang_1fps_100/sparse"
 
-#default settings , will change by different test aim 
+
+#default settings , will change by different test  
 default_test_sensor = "iphone7p" 
 faiss_index = "/nfs/project/localization/faissindex/index_trained_SoftwareParkOne20180510_trained_NoPopulate.faissindex"
-
+num_of_test_set = 1000
+model_threshold_size = 20 
+car_id = "Beijing_Buick_Q9Q3M0"
 
 #constant value
 byte_to_Mbyte = 1024 * 1024
-model_threshold_size = 20 
-num_of_test_set = 1000
 
+
+# ###########################################
+# Desc :Get_directory size
+# ############################################
 def get_dirsize(dirpath):
     size = 0 
     for root , dirs , files in os.walk(dirpath):
@@ -42,6 +47,7 @@ def get_dirsize(dirpath):
 # Desc :parse model path , mining information
 # ############################################
 def parse_model_path( model_path , user) :
+    print "_______________Parse_model_path_______________\n"
     print "--------------------------------------------------------------------------------------------\n"
     print "model_path:" , str(model_path) 
     print "--------------------------------------------------------------------------------------------\n"
@@ -57,8 +63,11 @@ def parse_model_path( model_path , user) :
     location = detail_info[2]
     yaw_degree = detail_info[-1] 
 
-    print "[date] , [model_sensor] , [location] , [yaw_degree] :", model_date , model_sensor , location , yaw_degree 
-        
+    print "[model_date]  :", model_date  + "\n"  
+    print "[model_sensor]:", model_sensor + "\n"
+    print "[location]    :", location + "\n"
+    print "[yaw_degree]  :", yaw_degree + "\n"
+    
     return (model_date , model_sensor , location , yaw_degree) 
 	
 	
@@ -67,10 +76,15 @@ def parse_model_path( model_path , user) :
 # ############################################
 def deal_with_model(model_path):
     model_sparse_path = os.path.join(model_path,"sparse")
+    
+    if(os.path.exists(model_sparse_path) == False):
+        print('\033[7;31;40m The model_path is not exists!Please cheack!\033[0m',model_sparse_path)
+        exit()
+        
     model_dir = os.listdir(model_sparse_path )
     #1) 1 model 
     if (len(model_dir) == 1) :
-        print "There is only " + str(len(model_dir)) +" directories in " + str(model_sparse_path) + "\n" 
+        print "There is only " + str(len(model_dir)) +" directories in :" + str(model_sparse_path) + "\n" 
     
         return model_sparse_path
     
@@ -78,7 +92,7 @@ def deal_with_model(model_path):
         print "There are " + str(len(model_dir)) +" directories in " + str(model_sparse_path) + "\n______________SELECT_______________\n"
         selected_dir = os.path.join(model_path,"selected")
         if (os.path.exists(selected_dir) == True) : 
-            print str(selected_dir) + " has existed !\n______________REMOVE______________ \n"
+            print str(selected_dir) + " has existed !\n\033[1;37m______________REMOVE selected______________\033[0m\n"
             shutil.rmtree(selected_dir)
             os.mkdir( selected_dir )
 
@@ -89,14 +103,15 @@ def deal_with_model(model_path):
                 size = get_dirsize(each_model_path)
                 print "directory[" + str(p)+ "]" + " size: " + str(size) + "MB"  
                 if size < model_threshold_size :
-                    print "directory[" + str(p) + "]" + " is smaller than " + str(model_threshold_size) + "\n_______________IGNORE_______________\n" 
+                    print "directory[" + str(p) + "]" + " is smaller than " + str(model_threshold_size) + "\n\033[1;37m_______________IGNORE_______________\033[0m\n" 
                 else :
                     dst_path = os.path.join(selected_dir,p)
                     shutil.copytree( each_model_path , dst_path )
+                    print "\n\033[1;32m_______________COPYING_______________\033[0m\n"
                     qulified_model_num += 1
     # 2) more than 1 model , and after selecting still more than 1 model
     if (qulified_model_num > 1) :
-        print "\n_______________MERGE_______________\n"
+        print "\n\033[1;32m_______________MERGE_______________\033[0m\n"
         merged_dir = os.path.join(model_path,"merged")
         merged_target = os.path.join(merged_dir , "0")
     
@@ -108,13 +123,14 @@ def deal_with_model(model_path):
         cmd = model_normalizer  + "/model_normalizer " + "--input " + selected_dir  + " " + "--output " + merged_target 
         (status , output) = commands.getstatusoutput(cmd)
         if( status == 0) :
-            print "\n_______________SUCCESS_______________\n"
+            print "\n\033[1;32m_______________MERGE SUCCESS_______________\033[0m\n"
+            print "\n\033[1;32mreal_model_path : " + merged_dir + "\033[0m\n"
             return merged_dir 
         else :
-            print "\n_______________FAILED_______________\n"
+            print "\n\033[7;31;40m_______________MERGE FAILED_______________\033[0m\n"
     
     else :
-        print "_______________SELECT_TO_ONE_______________"
+        print "\n\033[1;32mreal_model_path : " + selected_dir + "\033[0m\n"
         return selected_dir
             
             
@@ -132,16 +148,26 @@ def deal_with_testing_validation_set(test_date,location):
     total_test_set_name = test_set_path + test_set_name 
     total_validation_set_name = validation_set_path + validation_set_name 
 
-    print test_set_name , validation_set_name    
-    
+    print "[test_set_name]       :" , test_set_name + "\n"
+    print "[validation_set_name] :" , validation_set_name + "\n"
     if( os.path.exists( total_test_set_name ) == True) : 
-        print total_test_set_name + " has existed!\n"
+        print "\033[1;34m" + total_test_set_name + " has existed! \033[0m\n"
+        #TO DO 
+        
+        
+        
     #else : 
-    pic_path = reco_root_path + "/" + test_date + "/Beijing_Buick_Q9Q3M0/" 
+    pic_path = reco_root_path + "/" + test_date + "/" + car_id + "/" 
+    if(os.path.exists( pic_path ) == False ):
+        print "\n\033[7;31;40mTest set path is not exist ! Please Check test_date or car_id !" + pic_path + "\033[0m\n"
+        exit()
     pic_dirname = "iphone7p_" + location +"/starneto"
-    print "pic_dirname:" , pic_dirname 
     
     pic_path += pic_dirname 
+    if(os.path.exists(pic_path) == False) :
+        print "\n\033[7;31;40mStarneto set path is not exist ! Please Check location or test sensor!" + pic_path + "\033[0m\n"
+        exit()
+        
     print "pic_path :" , pic_path +"\n"
     
     # Generate test_set
@@ -159,23 +185,24 @@ def deal_with_testing_validation_set(test_date,location):
 def merge_5fps(pic_path , total_test_set_name ):
     #merge 5fps_*.txt into 5fps.txt
     mergefile = os.path.join(pic_path,"5fps.txt")
+    discardfile = os.path.join(pic_path,"1fps.txt")
+    
     if(os.path.exists(mergefile)):
         os.remove(mergefile)
-        print "delete old 5fps.txt"
-    discardfile = os.path.join(pic_path,"1fps.txt")
-    print mergefile , discardfile
+        print "\ndelete old 5fps.txt\n"
+    
     if (os.path.exists(mergefile) == False) :
         f = open(mergefile,"a+")
         for filename in os.listdir(pic_path):
             arr = filename.split('_')
             if(arr[0] == "5fps") :
-                print arr[1]
+                print "merge txt :" + filename + "\n"
                 filePath = os.path.join(pic_path,filename)
                 for content in open(filePath,'r'):
                     f.write(content)
 
         f.close()
-    print "merge end"
+    print "\033[1;32m_______________TXT MERGE SUCCESS_______________\033[0m\n"
 
     #Discard repeated pictures
     allfile = os.path.join(pic_path,'5fps.txt')
@@ -236,8 +263,12 @@ def merge_5fps(pic_path , total_test_set_name ):
 # Desc :Fill in localization task shell script 
 # ############################################
 def fill_in_localization_scipt(test_name , focal_type , real_model_path ,total_test_set_name,total_validation_set_name,database_path):
+    localization_template_path = os.path.join(localization_task_path, 'localization_template.sh')
+    if(os.path.exist(localization_template_path) == False):
+        print "\n\033[7;31;40mLocalization_template is not exist ! Please Check!" + localization_template_path + "\033[0m\n"
+        exit()
     #read localization_template.sh
-    table_ = open(os.path.join(localization_task_path, 'localization_template.sh'),"r").read() 
+    table_ = open(,"r").read() 
     
     #Generate today's task directory , ex.20181225
     today=str(datetime.date.today().strftime('%Y%m%d'))  
@@ -250,7 +281,7 @@ def fill_in_localization_scipt(test_name , focal_type , real_model_path ,total_t
     #Generate each task directory depend on its test_name
     task_dir = os.path.join(today_dir,test_name )
     if os.path.exists(task_dir) : 
-        print "ERROR : The task has exist ! please check your test name or delete old one..." 
+        print "\n\033[7;31;40mThe same task has exist ! please check your test name , change it or delete old one..." + task_dir + "\033[0m\n"
     else :
         os.mkdir(task_dir)
     
@@ -268,10 +299,10 @@ def fill_in_localization_scipt(test_name , focal_type , real_model_path ,total_t
 # ############################################
 def run_localization_script(name,task_dir,total_validation_set_name):
     cmd = 'sh ' + name + ' > ' + task_dir +'/out.log'
-    print cmd 
+    print "_______________Start running Localization script_______________"
     (status, output) = commands.getstatusoutput(cmd)
     if(status == 0):
-        print "_______________Starting run localization script_______________"
+        print "_______________Start running Grep PerfTestSuccess_______________"
     else :
         print "_______________Error occur : localization script,check the script_______________"
     
@@ -279,7 +310,7 @@ def run_localization_script(name,task_dir,total_validation_set_name):
     cmd = 'cat '+task_dir + '/out.log | grep ___PerfTestSuccess___ > ' + task_dir + '/perf_test.txt' 
     (status, output) = commands.getstatusoutput(cmd)
     if(status == 0):
-        print "_______________Starting Grep PerfTestSuccess_______________"
+        print "_______________Start running distance.sh_______________"
     else :
         print "_______________Error occur : Grep PerfTestSuccess_______________"
     #Run the distance.sh 
@@ -290,13 +321,11 @@ def run_localization_script(name,task_dir,total_validation_set_name):
     
     cmd = 'sh distance.sh '+ total_validation_set_name + ' ' + task_dir +'/perf_test.txt > ' + task_dir + '/performance.txt' 
     (status , output) = commands.getstatusoutput(cmd)  
-    if(status == 0):
-        print "_______________Starting run distance.sh_______________"
-    else :
+    if(status != 0):
         print "_______________Error occur : distance.sh_______________"
     
     
-    print "Check performance.txt:" , task_dir  
+    print "\033[1;32mCheck performance.txt: cat " + task_dir + "performance.txt\033[0m\n" 
     cmd = 'cat '+ task_dir + '/performance.txt'  
     (status , output) = commands.getstatusoutput(cmd)
     if(status == 0):
