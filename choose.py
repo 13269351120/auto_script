@@ -9,7 +9,7 @@ if __name__ == "__main__":
     uniquefile = os.path.join(path,'5fps_without_1fps.txt')
     
     test_set_path = "/nfs/project/localization/measure_set/testing_set"
-    name = "20181206_huaweidasha_iphone7p_test.txt"
+    name = "20181210_ruanjianyuan2_iphone7p_test.txt"
     test_name = os.path.join(test_set_path , name ) 
     
     cmd = 'cat ' + uniquefile + ' | wc -l' 
