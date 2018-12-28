@@ -1,0 +1,94 @@
+
+[1;44m_______________Parse_Model_Path_______________[0m
+[1;32m[model_path]  :[0m[1;34m /nfs/project/daily_3drecon/20181210/3drecon/test_partial_ba/samsung_starneto_linxiuguigu_1fps_100[0m
+
+[1;32m[model_date]  :[0m 20181210
+
+[1;32m[model_sensor]:[0m samsung
+
+[1;32m[location]    :[0m linxiuguigu
+
+[1;32m[yaw_degree]  :[0m 100
+
+other places!
+
+test name is :jincheng_linxiuguigu_samsung_20181210_yaw100_iphone7p_20181210
+
+
+[1;44m_______________Deal_With_Model_______________[0m
+
+[1;32mThere is only 1 directories in :/nfs/project/daily_3drecon/20181210/3drecon/test_partial_ba/samsung_starneto_linxiuguigu_1fps_100/sparse
+Don't Need to Select Or Merge![0m
+
+
+[1;32m[Real_Model_Path] : [1;34m/nfs/project/daily_3drecon/20181210/3drecon/test_partial_ba/samsung_starneto_linxiuguigu_1fps_100/sparse[0m
+
+
+[1;44m_______________Deal_With_Testing & Validation_Set_______________[0m
+
+[1;32m[test_set_name]       :[0m 20181210_linxiuguigu_iphone7p_test.txt
+
+[1;32m[validation_set_name] :[0m 20181210_linxiuguigu_iphone7p_validation.txt
+
+[1;34m/nfs/project/localization//measure_set/testing_set/20181210_linxiuguigu_iphone7p_test.txt[1;41m has existed! [0m
+
+pic_path : /nfs/project/daily_3drecon//20181210/Beijing_Buick_Q9Q3M0/iphone7p_linxiuguigu/starneto
+
+
+Delete old 5fps.txt
+
+Merge txt :5fps_00.txt
+
+Merge txt :5fps_01.txt
+
+Merge txt :5fps_02.txt
+
+[1;44m_______________TXT MERGE SUCCESS_______________[0m
+
+
+1fps.txt has[1;33m 4492[0m lines
+
+
+5fps.txt Discard [1;33m1313[0m lines from 1fps.txt
+
+5fps_without_1fps.txt total line:[1;33m16532[0m
+Select Internal : [1;33m16[0m
+
+
+[1;44m_______________Fill In Localization Script_______________[0m
+
+
+Today's work directory has exists!
+
+
+[1;41mThe same task has exist ! please check your test name , change it or delete old one.../home/luban/sutenghui/localization_task/20181227/jincheng_linxiuguigu_samsung_20181210_yaw100_iphone7p_20181210[0m
+
+
+[1;44m_______________Deal With The Localization Script_______________[0m
+
+
+[1;44m_______________Start running Localization script_______________[0m
+
+CHECK : [1;34mtail -f /home/luban/sutenghui/localization_task/20181227/jincheng_linxiuguigu_samsung_20181210_yaw100_iphone7p_20181210/out.log[0m
+
+
+[1;44m_______________Start running Grep PerfTestSuccess_______________[0m
+
+
+[1;44m_______________Start running distance.sh_______________[0m
+
+[1;34mCHECK : performance.txt: cat /home/luban/sutenghui/localization_task/20181227/jincheng_linxiuguigu_samsung_20181210_yaw100_iphone7p_20181210/performance.txt[0m
+
+
+[1;44m_______________SHOW Performance.txt_______________[0m
+
+[1;45m
+Latency AVG: 0.138995
+Mean: 1.36672
+Median: 0.913583
+localized image number 1012
+total image number :1034
+[0m
+
+CHECK accuracy.txt:[1;34mvim /home/luban/sutenghui/localization_task/20181227/jincheng_linxiuguigu_samsung_20181210_yaw100_iphone7p_20181210/accuracy.txt[0m
+
