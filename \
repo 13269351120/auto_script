@@ -54,7 +54,6 @@ def get_dirsize(dirpath):
 # ###########################################
 # Desc :parse model path , mining information
 # ############################################
-
 def parse_model_path( model_path , user) :
     print "\n\033[1;44m_______________Parse_Model_Path_______________\033[0m"
     #print "\n--------------------------------------------------------------------------------------------\n"
@@ -64,6 +63,8 @@ def parse_model_path( model_path , user) :
     #parse model_path
     model_info = model_path.split('/')
     model_date = model_info[4]
+    
+     
     detail_info = model_info[7].split('_')
     
     model_sensor = detail_info[0]
@@ -81,7 +82,6 @@ def parse_model_path( model_path , user) :
 # ###########################################
 # Desc :Select Model and merge it into one 
 # ############################################
-
 def deal_with_model(model_path):
     print "\n\033[1;44m_______________Deal_With_Model_______________\033[0m"
     model_sparse_path = os.path.join(model_path,"sparse")
@@ -121,7 +121,6 @@ def deal_with_model(model_path):
     # 2) more than 1 model , and after selecting still more than 1 model
     if (qulified_model_num > 1) :
         print "\n\033[1;44m_______________MERGE_______________\033[0m\n"
-        ## create merged directory : merged/0/
         merged_dir = os.path.join(model_path,"merged")
         merged_target = os.path.join(merged_dir , "0")
     
@@ -130,7 +129,6 @@ def deal_with_model(model_path):
                
         os.makedirs(merged_target)
         
-        ## merge models into /merged/0/
         cmd = model_normalizer  + "/model_normalizer " + "--input " + selected_dir  + " " + "--output " + merged_target 
         (status , output) = commands.getstatusoutput(cmd)
         if( status == 0) :
@@ -139,8 +137,7 @@ def deal_with_model(model_path):
             return merged_dir 
         else :
             print "\n\033[1;41m_______________MERGE FAILED_______________\033[0m\n"
-            print "\n\033[1;31mPlease Check model path : " + model_path  + "\033[0m\n"
-            exit()
+    
     else :
         print "\n\033[1;32m[Real_model_path] : \033[1;34m" + selected_dir + "\033[0m\n"
         return selected_dir
@@ -149,55 +146,43 @@ def deal_with_model(model_path):
 # ############################################  
 # Desc :Generate testing_set & validation_set     
 # ############################################   
-
 def deal_with_testing_validation_set(test_date,location):
-
     print "\n\033[1;44m_______________Deal_With_Testing & Validation_Set_______________\033[0m\n"    
+    test_set_name = test_date + "_" + location + "_iphone7p_test.txt"  
+    validation_set_name = test_date + "_" + location + "_iphone7p_validation.txt"
     
-    ## test and validation set name format  
-    test_set_name = test_date + "_" + location + "_" + default_test_sensor + "_test.txt"  
-    validation_set_name = test_date + "_" + location + "_" + default_test_sensor + "_validation.txt"
-    
-    ## test and validation set path
     test_set_path = localization_root_path + "/measure_set/testing_set/"
     validation_set_path =localization_root_path + "/measure_set/validation_set/" 
 
-    ## test and validation absolute path 
     total_test_set_name = test_set_path + test_set_name 
     total_validation_set_name = validation_set_path + validation_set_name 
-    
-    ## Check 
+
     print "\033[1;32m[test_set_name]       :\033[0m" , test_set_name + "\n"
     print "\033[1;32m[validation_set_name] :\033[0m" , validation_set_name + "\n"
-
-    ## Now , if the test or validation have existed , then generate again , because the process is fast! 
-    ## In the future , it can be ignore , and use the existed file directly.
     if( os.path.exists( total_test_set_name ) == True) : 
-        print "\033[1;34m" + total_test_set_name + "\033[1;41m has existed!  \033[0m\n"
+        print "\033[1;34m" + total_test_set_name + "\033[1;41m has existed! \033[0m\n"
         #TO DO 
         
+        
+        
     #else : 
-    ## Pay attention to the directories name : like samsung -> sumsung | sansung and so on 
     pic_path = reco_root_path + "/" + test_date + "/" + car_id + "/" 
     if(os.path.exists( pic_path ) == False ):
         print "\n\033[1;41mTest set path is not exist ! Please Check test_date or car_id !" + pic_path + "\033[0m\n"
-        print "\n\033[1;31mPay attention to the directories name : like samsung -> sumsung | sansung and so on....\033[0m\n"
         exit()
-
-    pic_dirname = default_test_sensor + "_" + location +"/starneto" 
+    pic_dirname = "iphone7p_" + location +"/starneto"
+    
     pic_path += pic_dirname 
-
     if(os.path.exists(pic_path) == False) :
         print "\n\033[1;41mStarneto set path is not exist ! Please Check location or test sensor!" + pic_path + "\033[0m\n"
-        print "\n\033[1;31mPay attention to the directories name : like samsung -> sumsung | sansung and so on....\033[0m\n"
         exit()
         
     print "\033[1;32m[pic_path] \033[0m:\033[1;34m" , pic_path +"\033[0m\n"
     
-    ## Generate test_set
+    # Generate test_set
     merge_5fps(pic_path , total_test_set_name) 
     
-    ## Generate validation_set
+    # Generate validation_set
     shutil.copyfile(total_test_set_name,total_validation_set_name)
     
     return (total_test_set_name,total_validation_set_name)
@@ -210,18 +195,11 @@ def merge_5fps(pic_path , total_test_set_name ):
     #merge 5fps_*.txt into 5fps.txt
     mergefile = os.path.join(pic_path,"5fps.txt")
     discardfile = os.path.join(pic_path,"1fps.txt")
-    residuefile = os.path.join(pic_path,"5fps_without_1fps.txt")
     
-    ## Delete old merged 5fps.txt 
     if(os.path.exists(mergefile)):
         os.remove(mergefile)
         print "\nDelete old 5fps.txt\n"
     
-    ## Historical reasons : previously the process has generate 5fps_without_1fps.txt , this can be ignored ...
-    if(os.path.exists(residuefile)) :
-        os.remove(residuefile)
-        print "\nDelete 5fps_without_1fps.txt\n" 
-   
     if (os.path.exists(mergefile) == False) :
         f = open(mergefile,"a+")
         for filename in os.listdir(pic_path):
@@ -233,10 +211,9 @@ def merge_5fps(pic_path , total_test_set_name ):
                     f.write(content)
 
         f.close()
-
     print "\033[1;44m_______________TXT MERGE SUCCESS_______________\033[0m\n"
 
-    #Discard pictures which reconstruction has used 
+    #Discard repeated pictures
     allfile = os.path.join(pic_path,'5fps.txt')
     disfile = os.path.join(pic_path,'1fps.txt')
 
@@ -247,18 +224,13 @@ def merge_5fps(pic_path , total_test_set_name ):
     without_1fps = os.path.join(pic_path , 'without_1fps.txt')
     if (os.path.exists(without_1fps ) == True): 
         os.remove(without_1fps)
-    
-    ## f1 : 5fps.txt ; 
-    ## f2 : 1fps.txt ;
-    ## f3 : test_set.txt , select 1000 from f4 ;
-    ## f4 : 5fps.txt discard 1fps.txt
+
     f1 = open(allfile,'r')
     f2 = open(disfile,'r')
     f3 = open(total_test_set_name , 'a+')
     f4 = open(without_1fps,'a+')
-
     discard = []
-    ## i : to record line number of 1fps.txt 
+    #i : to record line number of 1fps.txt 
     i = 0
     for line in f2 :
         discard.append(line)
@@ -266,10 +238,9 @@ def merge_5fps(pic_path , total_test_set_name ):
 
     print "\n1fps.txt has\033[1;33m " + str(i) + "\033[0m lines\n"
     
-    ## j : to record numbers of discard pictures
+    #j : to record number of discard pictures
     j = 0
-    
-    ## k : to record remained numbers of pictures
+
     k = 0
     for line in f1 :
         if line in discard :
@@ -282,11 +253,9 @@ def merge_5fps(pic_path , total_test_set_name ):
     print "\n5fps.txt Discard \033[1;33m" + str(j) + "\033[0m lines from 1fps.txt\n"
     f1.close()
     f2.close()
-    
-    ## calculate the Sampling interval  
+
     internal = k / num_of_test_set 
     print "5fps_without_1fps.txt total line:\033[1;33m" + str(k) + "\033[0m\nSelect Internal : \033[1;33m" + str(internal) + "\033[0m\n" 
-    
     choose = 0
     f4.close()
     f4 = open(without_1fps,'r') 
@@ -297,27 +266,21 @@ def merge_5fps(pic_path , total_test_set_name ):
     
     f3.close()
     f4.close()
-    ## Delete the intermediate files 
-    os.remove(mergefile)
-    os.remove(without_1fps)
 
 
 # ###########################################
 # Desc :Fill in localization task shell script 
 # ############################################
 def fill_in_localization_scipt(test_name , focal_type , real_model_path ,total_test_set_name,total_validation_set_name,database_path):
-
     print "\n\033[1;44m_______________Fill In Localization Script_______________\033[0m\n"
-
     localization_template_path = os.path.join(localization_task_path, 'localization_template.sh')
     if(os.path.exists(localization_template_path) == False):
         print "\n\033[1;41mLocalization_template is not exist ! Please Check!" + localization_template_path + "\033[0m\n"
         exit()
-
-    ## Read localization_template.sh
+    #read localization_template.sh
     table_ = open(localization_template_path,"r").read() 
     
-    ## Generate today's task directory , ex.20181225
+    #Generate today's task directory , ex.20181225
     today=str(datetime.date.today().strftime('%Y%m%d'))  
     today_dir = os.path.join(localization_task_path, today)
     if os.path.exists(today_dir) : 
@@ -325,14 +288,14 @@ def fill_in_localization_scipt(test_name , focal_type , real_model_path ,total_t
     else: 
         os.mkdir(today_dir)
         
-    ## Generate each task directory depend on its test_name
+    #Generate each task directory depend on its test_name
     task_dir = os.path.join(today_dir,test_name )
     if os.path.exists(task_dir) : 
         print "\n\033[1;41mThe same task has exist ! please check your test name , change it or delete old one..." + task_dir + "\033[0m\n"
     else :
         os.mkdir(task_dir)
     
-    ## Fill Actual Value into Template
+    #Fill Actual Value into Template
     name = os.path.join(task_dir,test_name) + ".sh" 
     localization_sh = open(name,"w")
     localization_sh.write(table_.replace("____index____",faiss_index).replace("____model____",real_model_path).replace("____image____",total_test_set_name).replace("____database____",database_path).replace("____focaltype____",focal_type))
@@ -345,13 +308,10 @@ def fill_in_localization_scipt(test_name , focal_type , real_model_path ,total_t
 # Desc :Run the localization script 
 # ############################################
 def run_localization_script(name,task_dir,total_validation_set_name):
-
     print "\n\033[1;44m_______________Deal With The Localization Script_______________\033[0m\n"
-
     cmd = 'sh ' + name + ' > ' + task_dir +'/out.log'
     print "\n\033[1;44m_______________Start running Localization script_______________\033[0m\n"
     print "CHECK : \033[1;34mtail -f " + task_dir + '/out.log\033[0m\n'
-
     (status, output) = commands.getstatusoutput(cmd)
     if(status == 0):
         print "\n\033[1;44m_______________Start running Grep PerfTestSuccess_______________\033[0m\n"
@@ -360,18 +320,19 @@ def run_localization_script(name,task_dir,total_validation_set_name):
         print "CHECK : \033[1;34mvim " + name + "\033[0m\n"
         exit()
     
-    ## Grep ___PerfTestSuccess___ from out.log into perf_test.txt 
+    #Grep ___PerfTestSuccess___ from out.log into perf_test.txt 
     cmd = 'cat '+task_dir + '/out.log | grep ___PerfTestSuccess___ > ' + task_dir + '/perf_test.txt' 
     (status, output) = commands.getstatusoutput(cmd)
     if(status == 0):
         print "\n\033[1;44m_______________Start running distance.sh_______________\033[0m\n"
     else :
         print "\n\033[1;41m_______________Error occur : Grep PerfTestSuccess_______________\033[0m\n"
-
-    ## Enter distance.sh directory
+    #Run the distance.sh 
+    #Output : performance.txt
+    
+    #Enter distance.sh directory
     os.chdir(distance_path)
     
-    ## Run the distance.sh 
     cmd = 'sh distance.sh '+ total_validation_set_name + ' ' + task_dir +'/perf_test.txt > ' + task_dir + '/performance.txt' 
     (status , output) = commands.getstatusoutput(cmd)  
     if(status != 0):
@@ -381,14 +342,11 @@ def run_localization_script(name,task_dir,total_validation_set_name):
     
     print "\033[1;34mCHECK : performance.txt: cat " + task_dir + "/performance.txt\033[0m\n" 
     
-    ## Calculate lines of validation_set    
-    cmd = 'cat ' + total_validation_set_name + ' | wc -l'
+    cmd = 'cat '+total_validation_set_name + ' | wc -l'
     (status , total_line) = commands.getstatusoutput(cmd)
     if(status != 0):
         print "\n\033[1;41m_______________Error occur : Calculate Validation Line__________________\n"
         exit()
-
-    ## Show performance.txt result 
     cmd = 'cat '+ task_dir + '/performance.txt'  
     (status , output) = commands.getstatusoutput(cmd)
     if(status == 0):
@@ -399,7 +357,6 @@ def run_localization_script(name,task_dir,total_validation_set_name):
         print "\033[0m"
     else :
         print "\n\033[1;41m_______________Error occur : performance.txt_______________\033[0m\n"
-        exit()
     
     #Copy accuracy.txt 
     accuracy_path = distance_path + "/accuracy.txt"
@@ -413,34 +370,34 @@ def run_localization_script(name,task_dir,total_validation_set_name):
 # Usage   : python auto_localization_test model_path database_path user
 # ############################################	
 if __name__ == "__main__":
-    ## Input
     model_path = sys.argv[1]
     database_path = sys.argv[2]
     database_path += '/database.db'
     user = sys.argv[3]
-
-    ## Parse model_path 
     (model_date , model_sensor , location , yaw_degree) = parse_model_path( model_path  , user) 
+    #print model_date , model_sensor , location , yaw_degree     
 
     test_sensor = default_test_sensor
     test_date = model_date
-    
-    ## Choose test_set depend on location
-    ## if (location == "ruanjianyuan") :
-    ##    print "location is ruanjianyuan1\n"
-    ##    test_date = "20181128"
+    #choose test_set depend on location
+    if (location == "ruanjianyuan") :
+        print "location is ruanjianyuan1\n"
+        test_date = "20181128"
 
-    ## elif (location == "ruanjianyuan2") :
-    ##    print "location is ruanjianyuan2\n"
-    ##    test_date = "20181129"
+    elif (location == "ruanjianyuan2") :
+        print "location is ruanjianyuan2\n"
+        test_date = "20181129"
 
         
-    ## Test name
+    #test name
     test_name = user + "_" + location + "_" + model_sensor + "_" + model_date + "_" + "yaw" + yaw_degree + "_" + test_sensor + "_" + test_date
     
     real_model_path = deal_with_model(model_path)     
     
     (total_test_set_name,total_validation_set_name) = deal_with_testing_validation_set(test_date,location) 
+    #real_model_path = "/nfs/project/daily_3drecon/20181212/3drecon/test_partial_ba/iphone7p_starneto_liuwandasha_1fps_100/merged"
+    #total_test_set_name = "/nfs/project/localization/measure_set/testing_set/20181212_liuwandasha_iphone7p_test.txt"
+    #total_validation_set_name = "/nfs/project/localization/measure_set/validation_set/20181212_liuwandasha_iphone7p_validation.txt"
         
     focal_type = "2"
     if (model_sensor == "iphone7p"):
